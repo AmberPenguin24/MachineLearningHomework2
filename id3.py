@@ -69,20 +69,19 @@ def build_tree(data, features, c_label, T):
     elif (len(features) == 0):
         return None
     else:
-        info_gains = {}
+        info_gains = []
         for feature in features:
-            info_gains[feature] = get_information_gain(data, feature, c_label)
-
-        best_feature = max(info_gains, key=info_gains.get) 
+            info_gains.append(get_information_gain(data, feature, c_label))
+        best_feature_index = info_gains.index(max(info_gains))
+        best_feature = features[best_feature_index]
         T[best_feature] = {}
-        #make a new features list
-        new_features = features.copy()
-        new_features.remove(best_feature)
-        for feature_value in data[best_feature].unique(): #for each value of the best feature, make a new branch
-           subset = data[data[best_feature] == feature_value]
-           T[best_feature][feature_value] = {}
-           build_tree(subset, new_features, c_label, T[best_feature][feature_value])            
-        
+        features.remove(best_feature)
+        for f_value in data[best_feature].unique():
+            subset = data[data[best_feature] == f_value]
+            T[best_feature][f_value] = {}
+            build_tree(subset, features.copy(), c_label, T[best_feature][f_value])
+        return T
+    
 
 
 def sklearn_decision_tree(dataframe):
