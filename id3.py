@@ -105,7 +105,6 @@ def sklearn_decision_tree(dataframe):
     clf.fit(features, c_label)
 
     print(export_text(clf, feature_names=features.columns))
-    pass
 
 def encode_categorical(df):
     """
