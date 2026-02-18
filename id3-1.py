@@ -2,6 +2,7 @@ import pandas as pd
 import math
 import pdb
 from anytree import Node, RenderTree
+from sklearn import tree
 from sklearn.tree import DecisionTreeClassifier, _tree, export_text
 from sklearn.preprocessing import LabelEncoder
 
@@ -100,7 +101,9 @@ def sklearn_decision_tree(dataframe):
     dataframe = encode_categorical(dataframe)
     c_label = dataframe['class']
     features = dataframe.drop(columns=['class'])
-    clf = DecisionTreeClassifier.fit(features, c_label)
+    clf = DecisionTreeClassifier()
+    clf.fit(features, c_label)
+
     print(export_text(clf, feature_names=features.columns))
     pass
 
@@ -139,6 +142,8 @@ def convert_to_anytree(tree, parent_name="Root"):
 def print_anytree(tree):
     """ Prints the decision tree in a structured way using anytree """
 
+    for pre, fill, node in RenderTree(tree):
+        print(f"{pre}{node.name}")
 
 def fetch_and_clean():
     """
