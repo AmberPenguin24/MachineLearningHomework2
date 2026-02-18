@@ -85,7 +85,7 @@ def build_tree(data, features, c_label, T):
             subset = data[data[best_feature] == feature_value]
 
             subtree = {}
-            res = build_tree(subset, new_features, c_label, T[best_feature][feature_value])            
+            res = build_tree(subset, new_features, c_label, subtree)            
 
             if res is not None:
                 T[best_feature][feature_value] = res
