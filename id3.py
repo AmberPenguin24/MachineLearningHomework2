@@ -68,6 +68,9 @@ def build_tree(data, features, c_label, T):
         return None 
     elif (len(features) == 0):
         return None
+    elif (len(data[c_label].unique()) == 1):
+        T[data[c_label].unique()[0]] = {}
+        return None
     else:
         info_gains = {}
         for feature in features:
@@ -79,14 +82,9 @@ def build_tree(data, features, c_label, T):
         new_features = features.copy()
         new_features.remove(best_feature)
         for feature_value in data[best_feature].unique(): #for each value of the best feature, make a new branch
-            subset = data[data[best_feature] == feature_value]
-
-            T[best_feature][feature_value] = {}
-            res = build_tree(subset, new_features, c_label, T[best_feature][feature_value])  
-            if res is not None:
-                T[best_feature][feature_value] = res
-            else:
-                T[best_feature][feature_value] = {}          
+           subset = data[data[best_feature] == feature_value]
+           T[best_feature][feature_value] = {}
+           build_tree(subset, new_features, c_label, T[best_feature][feature_value])            
         
 
 
