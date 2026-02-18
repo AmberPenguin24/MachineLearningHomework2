@@ -67,10 +67,7 @@ def build_tree(data, features, c_label, T):
     if (len(data) == 0):
         return None 
     elif (len(features) == 0):
-        return None
-    elif (len(data[c_label].unique()) == 1):
-        T[data[c_label].unique()[0]] = {}
-        return None
+        return 
     else:
         info_gains = {}
         for feature in features:
