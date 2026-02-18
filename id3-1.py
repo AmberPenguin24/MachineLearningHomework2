@@ -17,7 +17,18 @@ def get_entropy(data, c_label):
     3. Sum the  entropies for each class label to get the final entropy.
     """
     # TODO: Implement entropy calculation logic here.
-    pass
+    total_samples = len(data)
+    entropies = []
+
+    for each_class in c_label:
+        class_samples = len(data[data[c_label] == each_class])
+        probability = class_samples / total_samples
+        if probability > 0:
+            entropies.append(probability * math.log2(probability))
+
+    entropy = -(sum(entropies))
+
+    return entropy
 
 def get_information_gain(data, f_label, c_label):
     """
@@ -28,7 +39,19 @@ def get_information_gain(data, f_label, c_label):
     3. Subtract the weighted entropy for each subset from the current entropy to get the information gain.
     """
     # TODO: Implement information gain calculation logic here.
-    pass
+    current_entropy = get_entropy(data, c_label)
+
+
+    for f_value in data[f_label].unique():
+        subset = data[data[f_label] == f_value] #get subset of data where feature has value f_value
+        entropy = get_entropy(subset, c_label) #get entropy for subset
+
+        entropy_weight = len(subset) / len(data) #get |Xv| / |X| for weight
+        entropy *= entropy_weight 
+       
+        current_entropy -= entropy
+        
+    return current_entropy
 
 def build_tree(data, features, c_label, T):
     """
@@ -40,7 +63,28 @@ def build_tree(data, features, c_label, T):
     4. Recursively build the tree for each branch using the subset of data corresponding to each feature value.
     """
     # TODO: Implement tree construction logic here.
-    pass
+    if (len(data) == 0):
+        return None 
+    elif (len(features) == 0):
+        return None
+    elif (len(data[c_label].unique()) == 1):
+        T[data[c_label].unique()[0]] = {}
+        return None
+    else:
+        info_gains = {}
+        for feature in features:
+            info_gains[feature] = get_information_gain(data, feature, c_label)
+
+        best_feature = max(info_gains, key=info_gains.get) 
+        T[best_feature] = {}
+        #make a new features list
+        new_features = features.copy()
+        new_features.remove(best_feature)
+        for feature_value in data[best_feature].unique(): #for each value of the best feature, make a new branch
+           subset = data[data[best_feature] == feature_value]
+           T[best_feature][feature_value] = {}
+           build_tree(subset, new_features, c_label, T[best_feature][feature_value])            
+        
 
 
 def sklearn_decision_tree(dataframe):
@@ -53,6 +97,11 @@ def sklearn_decision_tree(dataframe):
     4. Print the tree structure using export_text.
     """
     # TODO: Implement sklearn decision tree fitting and structure extraction logic here.
+    dataframe = encode_categorical(dataframe)
+    c_label = dataframe['class']
+    features = dataframe.drop(columns=['class'])
+    clf = DecisionTreeClassifier.fit(features, c_label)
+    print(export_text(clf, feature_names=features.columns))
     pass
 
 def encode_categorical(df):
@@ -63,7 +112,12 @@ def encode_categorical(df):
     2. Return the encoded dataframe and the label encoders used.
     """
     # TODO: Implement categorical encoding logic here.
-    pass
+    for column in df.columns:
+        le = LabelEncoder()
+        df[column] = le.fit_transform(df[column])
+        # Store the label encoder for later use if needed (e.g., for inverse transformation)
+    return df
+    
 
 
 def convert_to_anytree(tree, parent_name="Root"):
@@ -95,7 +149,10 @@ def fetch_and_clean():
     3. Return the cleaned dataframe.
     """
     # TODO: Implement data fetching and cleaning logic here.
-    pass
+    df = pd.read_csv('mushroom_data.csv')
+    df = df.dropna()
+    return df
+   
 
 if __name__ == "__main__":
     # Example use
