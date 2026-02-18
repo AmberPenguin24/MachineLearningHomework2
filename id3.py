@@ -21,7 +21,7 @@ def get_entropy(data, c_label):
     total_samples = len(data)
     entropies = []
 
-    for each_class in c_label:
+    for each_class in data[c_label].unique():
         class_samples = len(data[data[c_label] == each_class])
         probability = class_samples / total_samples
         if probability > 0:
