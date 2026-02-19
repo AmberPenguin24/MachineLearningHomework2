@@ -1,7 +1,7 @@
 import pandas as pd
 import math
 import pdb
-from anytree import Node, RenderTree
+from anytree import Node, RenderTree, ContRoundStyle
 from sklearn import tree
 from sklearn.tree import DecisionTreeClassifier, _tree, export_text
 from sklearn.preprocessing import LabelEncoder
@@ -66,21 +66,43 @@ def build_tree(data, features, c_label, T):
     # TODO: Implement tree construction logic here.
     if (len(data) == 0):
         return None 
-    elif (len(features) == 0):
-        return None
-    else:
-        info_gains = []
-        for feature in features:
-            info_gains.append(get_information_gain(data, feature, c_label))
-        best_feature_index = info_gains.index(max(info_gains))
-        best_feature = features[best_feature_index]
-        T[best_feature] = {}
-        features.remove(best_feature)
-        for f_value in data[best_feature].unique():
-            subset = data[data[best_feature] == f_value]
-            T[best_feature][f_value] = {}
-            build_tree(subset, features.copy(), c_label, T[best_feature][f_value])
-        return T
+    
+    # Base Case 2: Pure Node - This is what you're missing!
+    # If everyone has the same class, RETURN that class label.
+    if len(data[c_label].unique()) == 1:
+        return data[c_label].iloc[0]
+
+    # Base Case 3: Out of features - Return the most common class
+    if len(features) == 0:
+        return data[c_label].value_counts().idxmax()
+    
+    # Calculate information gain for each feature and pick the best one
+    info_gains = []
+    for feature in features:
+        info_gains.append(get_information_gain(data, feature, c_label))
+
+    best_feature_index = info_gains.index(max(info_gains))
+    best_feature = features[best_feature_index]
+
+    T[best_feature] = {}
+
+    # Remove the best feature from the list of features for the recursive calls
+    remaining_features = [f for f in features if f != best_feature]
+
+    for f_value in data[best_feature].unique():
+        subset = data[data[best_feature] == f_value]
+
+        subtree_data = {}
+        res = build_tree(subset, remaining_features, c_label, subtree_data)
+
+        # If the recursive call returns a class label (base case), assign it directly to the tree
+        if res is not None and not isinstance(res, dict):
+            T[best_feature][f_value] = res
+        else:
+            # Otherwise, it populated 'subtree_data' with a new dictionary level
+            T[best_feature][f_value] = subtree_data
+            
+    return T
     
 
 
@@ -136,7 +158,6 @@ def convert_to_anytree(tree, parent_name="Root"):
 
 def print_anytree(tree):
     """ Prints the decision tree in a structured way using anytree """
-
     for pre, fill, node in RenderTree(tree):
         print(f"{pre}{node.name}")
 
@@ -173,4 +194,4 @@ if __name__ == "__main__":
     print_anytree(anytree_root)
 
     # SKLEARN TREE
-    sklearn_decision_tree(dataframe=df)
+    #sklearn_decision_tree(dataframe=df)
