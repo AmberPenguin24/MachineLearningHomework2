@@ -116,7 +116,7 @@ def sklearn_decision_tree(dataframe):
     4. Print the tree structure using export_text.
     """
     # TODO: Implement sklearn decision tree fitting and structure extraction logic here.
-    dataframe = encode_categorical(dataframe)
+    dataframe, encoders = encode_categorical(dataframe)
     c_label = dataframe['class']
     features = dataframe.drop(columns=['class'])
     clf = DecisionTreeClassifier()
@@ -132,11 +132,13 @@ def encode_categorical(df):
     2. Return the encoded dataframe and the label encoders used.
     """
     # TODO: Implement categorical encoding logic here.
+    encoders = {}
     for column in df.columns:
         le = LabelEncoder()
         df[column] = le.fit_transform(df[column])
+        encoders[column] = le
         # Store the label encoder for later use if needed (e.g., for inverse transformation)
-    return df
+    return df, encoders
     
 
 
@@ -194,4 +196,4 @@ if __name__ == "__main__":
     print_anytree(anytree_root)
 
     # SKLEARN TREE
-    #sklearn_decision_tree(dataframe=df)
+    sklearn_decision_tree(dataframe=df)
