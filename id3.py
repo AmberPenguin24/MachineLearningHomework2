@@ -136,7 +136,7 @@ def encode_categorical(df):
         le = LabelEncoder()
         df[column] = le.fit_transform(df[column])
         # Store the label encoder for later use if needed (e.g., for inverse transformation)
-    return df
+    return df, le
     
 
 
