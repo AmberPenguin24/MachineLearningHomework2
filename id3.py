@@ -70,11 +70,11 @@ def build_tree(data, features, c_label, T):
     # Base Case 2: Pure Node - This is what you're missing!
     # If everyone has the same class, RETURN that class label.
     if len(data[c_label].unique()) == 1:
-        return data[c_label].iloc[0]
+        return None
 
     # Base Case 3: Out of features - Return the most common class
     if len(features) == 0:
-        return data[c_label].value_counts().idxmax()
+        return None
     
     # Calculate information gain for each feature and pick the best one
     info_gains = []
@@ -101,7 +101,7 @@ def build_tree(data, features, c_label, T):
         else:
             # Otherwise, it populated 'subtree_data' with a new dictionary level
             T[best_feature][f_value] = subtree_data
-            
+
     return T
     
 
